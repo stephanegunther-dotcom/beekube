@@ -634,25 +634,20 @@ select.field-input option { background: var(--dark2); }
 
 <script>
 const BASE_URL   = 'https://www.beekube.com/api/v2';
-const CORS_PROXY = 'https://corsproxy.io/?';
+const CORS_PROXY = 'https://proxy.cors.sh/';
 let apiKey = '';
 
 // ── API call ──
 async function api(path) {
   const targetUrl = BASE_URL + path;
-  // Essai direct d'abord, fallback proxy si CORS
-  try {
-    const r = await fetch(targetUrl, { headers: { 'X-API-KEY': apiKey } });
-    if (!r.ok) throw new Error('Erreur ' + r.status);
-    return r.json();
-  } catch(e) {
-    // Fallback via proxy
-    const r2 = await fetch(CORS_PROXY + encodeURIComponent(targetUrl), {
-      headers: { 'X-API-KEY': apiKey, 'x-requested-with': 'XMLHttpRequest' }
-    });
-    if (!r2.ok) throw new Error('Erreur ' + r2.status);
-    return r2.json();
-  }
+  const r = await fetch(CORS_PROXY + targetUrl, {
+    headers: {
+      'X-API-KEY': apiKey,
+      'x-cors-api-key': 'temp_' + Math.random().toString(36).slice(2)
+    }
+  });
+  if (!r.ok) throw new Error('Erreur ' + r.status);
+  return r.json();
 }
 
 // ── LocalStorage ──
